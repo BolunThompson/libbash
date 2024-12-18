@@ -22,7 +22,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
+          - ubuntu-20.04
           - ubuntu-latest
+          - macos-13
+          - macos-latest
 
     runs-on: ${{ matrix.os }}
 
