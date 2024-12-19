@@ -16,7 +16,23 @@ jobs:
 
       - name: Check version numbers
         run: ./version.sh
-  
+        
+  make_sdist:
+    name: Make SDist
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true  # Optional, use if you have submodules
+
+    - name: Build SDist
+      run: pipx run build --sdist
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: cibw-sdist
+        path: dist/*.tar.gz
+
   package-python:
     strategy:
       fail-fast: false
@@ -36,11 +52,11 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
-           
+
       - name: Upload binary wheel
         uses: actions/upload-artifact@v4
         with:
-          name: dist
+          name: cibw-wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
       
   deploy:
@@ -60,6 +76,8 @@ jobs:
         with:
           name: dist
           path: wheelhouse/
+          pattern: cibw-*
+          merge-multiple: true
 
       - name: Deploy test distribution to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
